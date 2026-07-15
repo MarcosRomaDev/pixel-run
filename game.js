@@ -1,6 +1,8 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+let velocityY = 0;
 let playerX = 50;
+let playerY = 50;
 
 document.addEventListener("keydown", function (event) {
   if (event.key === "ArrowLeft") {
@@ -14,8 +16,11 @@ document.addEventListener("keydown", function (event) {
 
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  velocityY = velocityY + 0.5;
+  playerY = playerY + velocityY;
+
   ctx.fillStyle = "red";
-  ctx.fillRect(playerX, 50, 40, 40);
+  ctx.fillRect(playerX, playerY, 40, 40);
 
   requestAnimationFrame(gameLoop);
 }
