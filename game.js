@@ -6,14 +6,6 @@ let playerY = 50;
 let isOnGround = false;
 
 document.addEventListener("keydown", function (event) {
-  if (event.key === "ArrowLeft") {
-    playerX = playerX - 10;
-  }
-
-  if (event.key === "ArrowRight") {
-    playerX = playerX + 10;
-  }
-
   if (event.key === " ") {
     if (isOnGround) {
       velocityY = -10;
