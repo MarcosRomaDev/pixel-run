@@ -3,6 +3,7 @@ const ctx = canvas.getContext("2d");
 let velocityY = 0;
 let playerX = 50;
 let playerY = 50;
+let isOnGround = false;
 
 document.addEventListener("keydown", function (event) {
   if (event.key === "ArrowLeft") {
@@ -11,6 +12,13 @@ document.addEventListener("keydown", function (event) {
 
   if (event.key === "ArrowRight") {
     playerX = playerX + 10;
+  }
+
+  if (event.key === " ") {
+    if (isOnGround) {
+      velocityY = -10;
+      isOnGround = false;
+    }
   }
 });
 
@@ -22,6 +30,9 @@ function gameLoop() {
   if (playerY + 40 >= canvas.height) {
     playerY = canvas.height - 40;
     velocityY = 0;
+    isOnGround = true;
+  } else {
+    isOnGround = false;
   }
 
   ctx.fillStyle = "red";
