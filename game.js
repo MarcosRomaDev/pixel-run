@@ -19,6 +19,11 @@ function gameLoop() {
   velocityY = velocityY + 0.5;
   playerY = playerY + velocityY;
 
+  if (playerY + 40 >= canvas.height) {
+    playerY = canvas.height - 40;
+    velocityY = 0;
+  }
+
   ctx.fillStyle = "red";
   ctx.fillRect(playerX, playerY, 40, 40);
 
