@@ -14,6 +14,7 @@ let isOnGround = false;
 let obstacleX = 800;
 let obstacleY = canvas.height - 40;
 let colision = false;
+let gameOver = false;
 
 // Salto: solo si isOnGround es true
 document.addEventListener("keydown", function (event) {
@@ -54,7 +55,7 @@ function gameLoop() {
   }
 
   if (colision) {
-    console.log("Game Over");
+    gameOver = true;
   }
 
   // El obstáculo avanza hacia el jugador cada frame
@@ -66,7 +67,15 @@ function gameLoop() {
   ctx.fillStyle = "red";
   ctx.fillRect(playerX, playerY, playerWidth, playerHeight);
 
-  requestAnimationFrame(gameLoop);
+  if (gameOver) {
+    ctx.fillStyle = "black";
+    ctx.font = "30px sans-serif";
+    ctx.fillText("Game Over", 300, 150);
+  }
+
+  if (!gameOver) {
+    requestAnimationFrame(gameLoop);
+  }
 }
 
 gameLoop();
