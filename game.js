@@ -11,10 +11,13 @@ let velocityY = 0;
 let playerX = 50;
 let playerY = 50;
 let isOnGround = false;
-let obstacleX = 800;
 let obstacleY = canvas.height - 40;
 let colision = false;
 let gameOver = false;
+let score = 0;
+let obstacles = [];
+let frameCount = 0;
+let spawnThreshold = 10;
 
 // Salto: solo si isOnGround es true
 document.addEventListener("keydown", function (event) {
@@ -28,8 +31,19 @@ document.addEventListener("keydown", function (event) {
 
 function gameLoop() {
   colision = false; // se resetea cada frame, antes de comprobar de nuevo
+  score += 1;
+  frameCount += 1;
+
+  if (frameCount >= spawnThreshold) {
+    obstacles.push({ x: canvas.width });
+    frameCount = 0;
+    spawnThreshold = Math.random() * 100 + 100; // ajusta los números a tu gusto
+  }
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.font = "20px sans-serif";
+  ctx.fillText("Score: " + score, 10, 20);
 
   // Gravedad: acelera hacia abajo y mueve al jugador en Y
   velocityY = velocityY + 0.25;
@@ -44,28 +58,34 @@ function gameLoop() {
     isOnGround = false;
   }
 
-  // Colisión AABB: hay choque si se solapan a la vez en X y en Y
-  if (
-    playerX < obstacleX + obstacleWidth &&
-    playerX + playerWidth > obstacleX &&
-    playerY < obstacleY + obstacleHeight &&
-    playerY + playerHeight > obstacleY
-  ) {
-    colision = true;
-  }
+  //Movimiento obstaculos y detector de colisión
+  obstacles.forEach(function (obstacle) {
+    obstacle.x -= 2;
+    // Colisión AABB para cada obstáculo
+    if (
+      playerX < obstacle.x + obstacleWidth &&
+      playerX + playerWidth > obstacle.x &&
+      playerY < obstacleY + obstacleHeight &&
+      playerY + playerHeight > obstacleY
+    ) {
+      colision = true;
+    }
+  });
+  obstacles = obstacles.filter(function (obstacle) {
+    return obstacle.x + obstacleWidth > 0;
+  });
+
+  obstacles.forEach(function (obstacle) {
+    ctx.fillStyle = "black";
+    ctx.fillRect(obstacle.x, obstacleY, obstacleWidth, obstacleHeight);
+  });
+
+  ctx.fillStyle = "red";
+  ctx.fillRect(playerX, playerY, playerWidth, playerHeight);
 
   if (colision) {
     gameOver = true;
   }
-
-  // El obstáculo avanza hacia el jugador cada frame
-  obstacleX = obstacleX - 2;
-
-  ctx.fillStyle = "black";
-  ctx.fillRect(obstacleX, obstacleY, obstacleWidth, obstacleHeight);
-
-  ctx.fillStyle = "red";
-  ctx.fillRect(playerX, playerY, playerWidth, playerHeight);
 
   if (gameOver) {
     ctx.fillStyle = "black";
