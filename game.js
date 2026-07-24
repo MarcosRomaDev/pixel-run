@@ -1,16 +1,28 @@
+// Canvas
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Tamaños fijos de cada rectángulo
-const playerWidth = 40,
-  playerHeight = 40;
+// Tamaños
+const playerWidth = 100,
+  playerHeight = 100;
 const obstacleWidth = 20,
   obstacleHeight = 40;
+const hitboxWidth = 40,
+  hitboxHeight = 40;
 
+// Sprite y animación
+const runImg = new Image();
+runImg.src = "assets/run.png";
+let frameIndex = 0;
+let frameTick = 0;
+
+// Estado jugador
 let velocityY = 0;
 let playerX = 50;
 let playerY = 50;
 let isOnGround = false;
+
+// Estado Juego
 let obstacleY = canvas.height - 40;
 let colision = false;
 let gameOver = false;
@@ -20,7 +32,7 @@ let frameCount = 0;
 let spawnThreshold = 10;
 let highScore = Number(localStorage.getItem("highScore")) || 0;
 
-// Salto: solo si isOnGround es true
+// Salto
 document.addEventListener("keydown", function (event) {
   if (event.key === " ") {
     if (gameOver) {
@@ -33,14 +45,20 @@ document.addEventListener("keydown", function (event) {
 });
 
 function gameLoop() {
-  colision = false; // se resetea cada frame, antes de comprobar de nuevo
+  colision = false;
   score += 1;
   frameCount += 1;
+
+  frameTick += 1;
+  if (frameTick >= 10) {
+    frameIndex = (frameIndex + 1) % 8;
+    frameTick = 0;
+  }
 
   if (frameCount >= spawnThreshold) {
     obstacles.push({ x: canvas.width });
     frameCount = 0;
-    spawnThreshold = Math.random() * 100 + 100; // ajusta los números a tu gusto
+    spawnThreshold = Math.random() * 100 + 100;
   }
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -48,28 +66,33 @@ function gameLoop() {
   ctx.font = "20px sans-serif";
   ctx.fillText("Score: " + score, 10, 20);
 
-  // Gravedad: acelera hacia abajo y mueve al jugador en Y
+  // Gravedad
   velocityY = velocityY + 0.25;
   playerY = playerY + velocityY;
 
-  // Suelo: si el jugador llega abajo, se para ahí y puede volver a saltar
-  if (playerY + 40 >= canvas.height) {
-    playerY = canvas.height - 40;
+  // Suelo
+  if (playerY + playerHeight >= canvas.height) {
+    playerY = canvas.height - playerHeight;
     velocityY = 0;
     isOnGround = true;
   } else {
     isOnGround = false;
   }
 
+  // Posicionamiento hitbox dentro del sprite
+  const hitboxX = playerX + (playerWidth - hitboxWidth) / 2;
+  const hitboxY = playerY + (playerHeight - hitboxHeight) / 2;
+
   //Movimiento obstaculos y detector de colisión
   obstacles.forEach(function (obstacle) {
     obstacle.x -= 2;
+
     // Colisión AABB para cada obstáculo
     if (
-      playerX < obstacle.x + obstacleWidth &&
-      playerX + playerWidth > obstacle.x &&
-      playerY < obstacleY + obstacleHeight &&
-      playerY + playerHeight > obstacleY
+      hitboxX < obstacle.x + obstacleWidth &&
+      hitboxX + hitboxWidth > obstacle.x &&
+      hitboxY < obstacleY + obstacleHeight &&
+      hitboxY + hitboxHeight > obstacleY
     ) {
       colision = true;
     }
@@ -83,8 +106,17 @@ function gameLoop() {
     ctx.fillRect(obstacle.x, obstacleY, obstacleWidth, obstacleHeight);
   });
 
-  ctx.fillStyle = "red";
-  ctx.fillRect(playerX, playerY, playerWidth, playerHeight);
+  ctx.drawImage(
+    runImg,
+    frameIndex * 128, // qué fotograma recortar de la imagen
+    0,
+    128,
+    128,
+    playerX, // dónde y a qué tamaño pintarlo
+    playerY,
+    playerWidth,
+    playerHeight,
+  );
 
   if (colision) {
     gameOver = true;
