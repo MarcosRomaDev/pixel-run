@@ -18,11 +18,14 @@ let score = 0;
 let obstacles = [];
 let frameCount = 0;
 let spawnThreshold = 10;
+let highScore = Number(localStorage.getItem("highScore")) || 0;
 
 // Salto: solo si isOnGround es true
 document.addEventListener("keydown", function (event) {
   if (event.key === " ") {
-    if (isOnGround) {
+    if (gameOver) {
+      restartGame();
+    } else if (isOnGround) {
       velocityY = -10;
       isOnGround = false;
     }
@@ -85,17 +88,42 @@ function gameLoop() {
 
   if (colision) {
     gameOver = true;
+    if (score > highScore) {
+      highScore = score;
+      localStorage.setItem("highScore", highScore);
+    }
   }
+
+  ctx.fillText("High Score: " + highScore, 10, 40);
 
   if (gameOver) {
     ctx.fillStyle = "black";
-    ctx.font = "30px sans-serif";
-    ctx.fillText("Game Over", 300, 150);
+    ctx.textAlign = "center";
+    ctx.font = "35px sans-serif";
+    ctx.fillText("Game Over", canvas.width / 2, 150);
+    ctx.font = "25px sans-serif";
+    ctx.fillText("Press Space to restart", canvas.width / 2, 200);
+    ctx.textAlign = "left";
   }
 
   if (!gameOver) {
     requestAnimationFrame(gameLoop);
   }
+}
+
+function restartGame() {
+  velocityY = 0;
+  playerX = 50;
+  playerY = 50;
+  isOnGround = false;
+  obstacleY = canvas.height - 40;
+  colision = false;
+  gameOver = false;
+  score = 0;
+  obstacles = [];
+  frameCount = 0;
+  spawnThreshold = 10;
+  gameLoop();
 }
 
 gameLoop();
