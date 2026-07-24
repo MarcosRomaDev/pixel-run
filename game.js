@@ -1,6 +1,7 @@
 // Canvas
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
 
 // Tamaños
 const playerWidth = 150,
@@ -16,6 +17,9 @@ const groundY = canvas.height * 0.92;
 // Sprite y animación
 const runImg = new Image();
 runImg.src = "assets/run.png";
+const jumpImg = new Image();
+jumpImg.src = "assets/jump.png";
+
 let frameIndex = 0;
 let frameTick = 0;
 
@@ -142,8 +146,12 @@ function gameLoop() {
     );
   });
 
+  let currentImg = runImg;
+  if (!isOnGround) {
+    currentImg = jumpImg;
+  }
   ctx.drawImage(
-    runImg,
+    currentImg,
     frameIndex * 128, // qué fotograma recortar de la imagen
     0,
     128,
