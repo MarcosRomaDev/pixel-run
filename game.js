@@ -54,6 +54,7 @@ let obstacles = [];
 let frameCount = 0;
 let spawnThreshold = 10;
 let highScore = Number(localStorage.getItem("highScore")) || 0;
+let gameSpeed = 2;
 
 // Salto
 document.addEventListener("keydown", function (event) {
@@ -71,8 +72,9 @@ function gameLoop() {
   colision = false;
   score += 1;
   frameCount += 1;
-
   frameTick += 1;
+  gameSpeed = 2 + score * 0.00025;
+
   if (frameTick >= 10) {
     frameIndex = (frameIndex + 1) % 8;
     frameTick = 0;
@@ -81,7 +83,7 @@ function gameLoop() {
   if (frameCount >= spawnThreshold) {
     obstacles.push({ x: canvas.width });
     frameCount = 0;
-    spawnThreshold = Math.random() * 100 + 200;
+    spawnThreshold = (Math.random() * 75 + 200) * (2 / gameSpeed);
   }
 
   obstacleFrameTick += 1;
@@ -93,7 +95,7 @@ function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(bgImg, bgX, 0, canvas.width, canvas.height);
   ctx.drawImage(bgImg, bgX + canvas.width, 0, canvas.width, canvas.height);
-  bgX -= 2;
+  bgX -= gameSpeed * 0.5;
   if (bgX <= -canvas.width) {
     bgX = 0;
   }
@@ -120,7 +122,7 @@ function gameLoop() {
 
   //Movimiento obstaculos y detector de colisión
   obstacles.forEach(function (obstacle) {
-    obstacle.x -= 2;
+    obstacle.x -= gameSpeed;
 
     // Colisión AABB para cada obstáculo
     if (
@@ -199,6 +201,7 @@ function restartGame() {
   obstacles = [];
   frameCount = 0;
   spawnThreshold = 10;
+  gameSpeed = 2;
   gameLoop();
 }
 
