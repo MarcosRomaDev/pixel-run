@@ -3,10 +3,12 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 // Tamaños
-const playerWidth = 100,
-  playerHeight = 100;
-const obstacleWidth = 20,
-  obstacleHeight = 40;
+const playerWidth = 150,
+  playerHeight = 150;
+
+const obstacleWidth = 50,
+  obstacleHeight = 88;
+
 const hitboxWidth = 40,
   hitboxHeight = 40;
 const groundY = canvas.height * 0.92;
@@ -16,6 +18,17 @@ const runImg = new Image();
 runImg.src = "assets/run.png";
 let frameIndex = 0;
 let frameTick = 0;
+
+// Obstaculo
+const obstacleFrames = [];
+for (let i = 1; i <= 10; i++) {
+  const num = String(i).padStart(2, "0");
+  const img = new Image();
+  img.src = `assets/obstacle/unavoidable_spikes_just_roller_${num}.png`;
+  obstacleFrames.push(img);
+}
+let obstacleFrameIndex = 0;
+let obstacleFrameTick = 0;
 
 // Background
 const bgImg = new Image();
@@ -29,7 +42,7 @@ let playerY = 50;
 let isOnGround = false;
 
 // Estado Juego
-let obstacleY = groundY - 40;
+let obstacleY = groundY - obstacleHeight;
 let colision = false;
 let gameOver = false;
 let score = 0;
@@ -49,7 +62,7 @@ document.addEventListener("keydown", function (event) {
     }
   }
 });
-
+//-----------------------------------------------------------------------------------------
 function gameLoop() {
   colision = false;
   score += 1;
@@ -64,7 +77,13 @@ function gameLoop() {
   if (frameCount >= spawnThreshold) {
     obstacles.push({ x: canvas.width });
     frameCount = 0;
-    spawnThreshold = Math.random() * 100 + 100;
+    spawnThreshold = Math.random() * 100 + 200;
+  }
+
+  obstacleFrameTick += 1;
+  if (obstacleFrameTick >= 10) {
+    obstacleFrameIndex = (obstacleFrameIndex + 1) % 10;
+    obstacleFrameTick = 0;
   }
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -79,7 +98,7 @@ function gameLoop() {
   ctx.fillText("Score: " + score, 10, 20);
 
   // Gravedad
-  velocityY = velocityY + 0.25;
+  velocityY = velocityY + 0.225;
   playerY = playerY + velocityY;
 
   // Suelo
@@ -114,9 +133,13 @@ function gameLoop() {
   });
 
   obstacles.forEach(function (obstacle) {
-    ctx.fillStyle = "grey";
-    ctx.fillRect(obstacle.x, obstacleY, obstacleWidth, obstacleHeight);
-    ctx.fillStyle = "black";
+    ctx.drawImage(
+      obstacleFrames[obstacleFrameIndex],
+      obstacle.x,
+      obstacleY,
+      obstacleWidth,
+      obstacleHeight,
+    );
   });
 
   ctx.drawImage(
@@ -161,7 +184,7 @@ function restartGame() {
   playerX = 50;
   playerY = 50;
   isOnGround = false;
-  obstacleY = groundY - 40;
+  obstacleY = groundY - obstacleHeight;
   colision = false;
   gameOver = false;
   score = 0;
