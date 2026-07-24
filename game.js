@@ -9,12 +9,18 @@ const obstacleWidth = 20,
   obstacleHeight = 40;
 const hitboxWidth = 40,
   hitboxHeight = 40;
+const groundY = canvas.height * 0.92;
 
 // Sprite y animación
 const runImg = new Image();
 runImg.src = "assets/run.png";
 let frameIndex = 0;
 let frameTick = 0;
+
+// Background
+const bgImg = new Image();
+bgImg.src = "assets/bg.png";
+let bgX = 0;
 
 // Estado jugador
 let velocityY = 0;
@@ -23,7 +29,7 @@ let playerY = 50;
 let isOnGround = false;
 
 // Estado Juego
-let obstacleY = canvas.height - 40;
+let obstacleY = groundY - 40;
 let colision = false;
 let gameOver = false;
 let score = 0;
@@ -62,6 +68,12 @@ function gameLoop() {
   }
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(bgImg, bgX, 0, canvas.width, canvas.height);
+  ctx.drawImage(bgImg, bgX + canvas.width, 0, canvas.width, canvas.height);
+  bgX -= 2;
+  if (bgX <= -canvas.width) {
+    bgX = 0;
+  }
 
   ctx.font = "20px sans-serif";
   ctx.fillText("Score: " + score, 10, 20);
@@ -71,8 +83,8 @@ function gameLoop() {
   playerY = playerY + velocityY;
 
   // Suelo
-  if (playerY + playerHeight >= canvas.height) {
-    playerY = canvas.height - playerHeight;
+  if (playerY + playerHeight >= groundY) {
+    playerY = groundY - playerHeight;
     velocityY = 0;
     isOnGround = true;
   } else {
@@ -102,8 +114,9 @@ function gameLoop() {
   });
 
   obstacles.forEach(function (obstacle) {
-    ctx.fillStyle = "black";
+    ctx.fillStyle = "grey";
     ctx.fillRect(obstacle.x, obstacleY, obstacleWidth, obstacleHeight);
+    ctx.fillStyle = "black";
   });
 
   ctx.drawImage(
@@ -148,7 +161,7 @@ function restartGame() {
   playerX = 50;
   playerY = 50;
   isOnGround = false;
-  obstacleY = canvas.height - 40;
+  obstacleY = groundY - 40;
   colision = false;
   gameOver = false;
   score = 0;
